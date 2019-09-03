@@ -17,3 +17,35 @@ ssh -p 1046 wangkun3@223.252.216.168 -A
 ```
  ./login.sh 52
 ```
+
+
+```
+#!/bin/bash
+
+if [ $# -ne 1 ]
+then
+    echo "Usage: input a digit index or -l"
+    exit
+fi
+
+# check parameters
+if grep '^[[:digit:]]*$' <<< "$1";then
+        echo "finding and logining ..."
+elif [ "$1" == "-l" ] ;then
+        cat /etc/host-list.txt
+        exit 0
+else
+        echo "wrong parameter!"
+        exit 1
+fi
+
+# index and ip can be sperate with multiple spaces or tabs
+read index ip password < <(cat /etc/host-list.txt | grep -E  "^$1[[[:space:]]|\t]?([0-9]{1,3}[\.]){3}[0-9]{1,3}" | awk '{print $1,$2,$3}')
+if [ ! "$ip" ]
+then
+    echo "Failed to get IP with given index : "$1
+    exit 1
+fi
+
+sshpass -p $password ssh root@$ip
+```
